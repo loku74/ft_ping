@@ -1,6 +1,8 @@
 #ifndef FT_PING_H
 #define FT_PING_H
 
+#define NAME "ft_ping"
+
 /* ========================================================================== */
 /*                                 INCLUDES                                   */
 /* ========================================================================== */
@@ -16,8 +18,10 @@
 /* System & Network Libraries */
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netdb.h>
 
 /* ========================================================================== */
 /*                                  MACROS                                    */
@@ -31,10 +35,9 @@
 /* ========================================================================== */
 
 typedef struct {
-  uint8_t type;
-  uint8_t code;
-  uint16_t checksum;
-} icmp_header_t;
+  struct icmphdr header;
+  char data[PING_PACKET_SIZE - sizeof(struct icmphdr)];
+} icmp_message_t;
 
 /* ========================================================================== */
 /*                            FUNCTION PROTOTYPES                             */
@@ -44,9 +47,6 @@ typedef struct {
 uint16_t get_checksum(const void *ptr, size_t count);
 
 /* [icmp.c] */
-size_t set_icmp_message(char **icmp_message);
-
-/* [socket.c] */
-int get_socket();
+void set_icmp_message(icmp_message_t *icmp_message);
 
 #endif

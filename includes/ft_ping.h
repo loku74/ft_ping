@@ -39,6 +39,15 @@ typedef struct {
   char data[PING_PACKET_SIZE - sizeof(struct icmphdr)];
 } icmp_message_t;
 
+typedef struct {
+  int sockfd;
+  icmp_message_t icmp_message;
+  char ip_str[INET_ADDRSTRLEN];
+  char *hostname;
+  struct addrinfo *res;
+  uint16_t sequence;
+} ping_data_t;
+
 /* ========================================================================== */
 /*                            FUNCTION PROTOTYPES                             */
 /* ========================================================================== */
@@ -51,5 +60,8 @@ void set_icmp_message(icmp_message_t *icmp_message);
 
 /* [host.c] */
 struct addrinfo *get_host_info(const char *hostname);
+
+/* [loop.c] */
+void ping_loop(ping_data_t *ping_data);
 
 #endif

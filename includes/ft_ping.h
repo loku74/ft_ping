@@ -8,6 +8,7 @@
 /* Standard C Libraries */
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
@@ -23,7 +24,7 @@
 /* ========================================================================== */
 
 #define PING_PACKET_SIZE 64
-#define PING_DATA_FILL 67
+#define PING_DATA_FILL 42
 
 /* ========================================================================== */
 /*                            STRUCT DEFINITIONS                              */
@@ -33,7 +34,6 @@ typedef struct {
   uint8_t type;
   uint8_t code;
   uint16_t checksum;
-
 } icmp_header_t;
 
 /* ========================================================================== */
@@ -42,5 +42,11 @@ typedef struct {
 
 /* [checksum.c] */
 uint16_t get_checksum(const void *ptr, size_t count);
+
+/* [icmp.c] */
+size_t set_icmp_message(char **icmp_message);
+
+/* [socket.c] */
+int get_socket();
 
 #endif

@@ -17,11 +17,11 @@
 
 /* System & Network Libraries */
 #include <arpa/inet.h>
-#include <netinet/ip_icmp.h>
+#include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/ip_icmp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netdb.h>
 
 /* ========================================================================== */
 /*                                  MACROS                                    */
@@ -48,5 +48,8 @@ uint16_t get_checksum(const void *ptr, size_t count);
 
 /* [icmp.c] */
 void set_icmp_message(icmp_message_t *icmp_message);
+
+/* [host.c] */
+struct addrinfo *get_host_info(const char *hostname);
 
 #endif

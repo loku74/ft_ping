@@ -7,7 +7,7 @@ uint16_t get_checksum(const void *ptr, size_t count) {
 
   while (count > 1) {
     sum += *char_ptr++;
-    count -= 2;
+    count -= sizeof(*char_ptr);
   }
 
   if (count > 0) {

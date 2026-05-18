@@ -1,1 +1,4 @@
 ft_ping
+logs.pcap
+capture.sh
+*.o

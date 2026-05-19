@@ -19,7 +19,8 @@ SRCS_FILES = ft_ping.c\
 	checksum.c\
 	icmp.c\
 	host.c\
-	loop.c
+	loop.c\
+	exit.c
 
 SRCS = $(addprefix $(SRCS_DIR), $(SRCS_FILES))
 OBJS = $(SRCS:.c=.o)

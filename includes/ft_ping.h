@@ -1,42 +1,37 @@
 #ifndef FT_PING_H
 #define FT_PING_H
 
-#define NAME "ft_ping"
+// INCLUDES
 
-/* ========================================================================== */
-/*                                 INCLUDES                                   */
-/* ========================================================================== */
-
-/* Standard C Libraries */
+// libc
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <signal.h>
 
-/* System & Network Libraries */
+// System & Network Libraries */
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/ip_icmp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/select.h>
+#include <sys/time.h>
 
-/* ========================================================================== */
-/*                                  MACROS                                    */
-/* ========================================================================== */
+// MACROS
 
 #define PING_PACKET_SIZE 64
 #define PING_DATA_FILL 42
 
-/* ========================================================================== */
-/*                            STRUCT DEFINITIONS                              */
-/* ========================================================================== */
+// STRUCT DEFINITIONS
 
 typedef struct {
   struct icmphdr header;
-  char data[PING_PACKET_SIZE - sizeof(struct icmphdr)];
+  char payload[PING_PACKET_SIZE - sizeof(struct icmphdr)];
 } icmp_message_t;
 
 typedef struct {
@@ -48,9 +43,7 @@ typedef struct {
   uint16_t sequence;
 } ping_data_t;
 
-/* ========================================================================== */
-/*                            FUNCTION PROTOTYPES                             */
-/* ========================================================================== */
+// FUNCTION PROTOTYPES
 
 /* [checksum.c] */
 uint16_t get_checksum(const void *ptr, size_t count);
@@ -63,5 +56,11 @@ struct addrinfo *get_host_info(const char *hostname);
 
 /* [loop.c] */
 void ping_loop(ping_data_t *ping_data);
+
+/* [exit.c] */
+void exit_ping(ping_data_t *ping_data, const char *message);
+
+/* [utils.c] */
+void to_upper(char *str);
 
 #endif

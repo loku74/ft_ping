@@ -9,5 +9,5 @@ void set_icmp_message(icmp_message_t *icmp_message) {
   icmp_message->header.un.echo.id = htons(getpid());
   icmp_message->header.un.echo.sequence = htons(0);
 
-  memset(&icmp_message->data, PING_DATA_FILL, sizeof(icmp_message->data));
+  memset(&icmp_message->payload, PING_DATA_FILL, sizeof(icmp_message->payload));
 }

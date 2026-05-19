@@ -1,12 +1,13 @@
 #include "../includes/ft_ping.h"
+#include <netdb.h>
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    fprintf(stderr, "%s: missing host operand\n", NAME);
+    fprintf(stderr, "%s: missing host operand\n", argv[0]);
     return 1;
   }
 
-  ping_data_t ping_data;
+  ping_data_t ping_data = {0};
 
   ping_data.hostname = argv[1];
 
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]) {
             ping_data.ip_str, sizeof(ping_data.ip_str));
 
   ping_loop(&ping_data);
+  freeaddrinfo(ping_data.res);
 
   return EXIT_SUCCESS;
 }

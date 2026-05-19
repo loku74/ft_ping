@@ -1,5 +1,4 @@
 #include "../includes/ft_ping.h"
-#include <sys/time.h>
 
 static ssize_t send_ping(ping_data_t *ping_data) {
   static uint16_t sequence = 0;
@@ -62,29 +61,47 @@ static void receive_ping(ping_data_t *ping_data) {
   handle_reply(ping_data, recv_buffer, recv_bytes);
 }
 
+volatile int stop = 0;
+
+void signal_handler(int sig) {
+  (void)sig;
+  stop = 1;
+}
+
 void ping_loop(ping_data_t *ping_data) {
   fd_set readfds;
+  uint16_t packet_sent, packet_received;
   struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
 
-  printf("FT_PING %s (%s): %zd data bytes\n", ping_data->hostname,
+  signal(SIGINT, signal_handler);
+
+  printf("%s %s (%s): %zd data bytes\n", NAME_UPPER, ping_data->hostname,
          ping_data->ip_str, sizeof(ping_data->icmp_message.payload));
 
   send_ping(ping_data);
 
-  while (1) {
+  packet_sent = packet_received = 0;
+  while (!stop) {
     FD_ZERO(&readfds);
     FD_SET(ping_data->sockfd, &readfds);
 
     int select_result =
         select(ping_data->sockfd + 1, &readfds, NULL, NULL, &timeout);
 
-    if (select_result < 0)
+    if (select_result < 0 && errno != EINTR)
       exit_ping(ping_data, "select");
-    else if (select_result > 0)
+    else if (select_result > 0) {
       receive_ping(ping_data);
-    else {
+      packet_received++;
+    } else {
       timeout = (struct timeval){.tv_sec = 1, .tv_usec = 0};
       send_ping(ping_data);
+      packet_sent++;
     }
   }
+
+  printf("--- %s %s statistics ---\n", ping_data->hostname, NAME);
+  printf("%u packets transmitted, %u packets received, %u%% packet loss\n",
+         packet_sent, packet_received,
+         (packet_sent - packet_received) * 100 / packet_sent);
 }

@@ -21,8 +21,13 @@
 #include <sys/types.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <signal.h>
+#include <errno.h>
 
 // MACROS
+
+#define NAME "ft_ping"
+#define NAME_UPPER "FT_PING"
 
 #define PING_PACKET_SIZE 64
 #define PING_DATA_FILL 42

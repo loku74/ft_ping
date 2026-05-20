@@ -1,9 +1,13 @@
 #include "../includes/ft_ping.h"
 #include <netdb.h>
 
+char *NAME;
+
 int main(int argc, char *argv[]) {
+  NAME = argv[0];
+
   if (argc < 2) {
-    fprintf(stderr, "%s: missing host operand\n", argv[0]);
+    fprintf(stderr, "%s: missing host operand\n", NAME);
     return 1;
   }
 

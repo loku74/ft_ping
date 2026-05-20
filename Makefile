@@ -37,7 +37,7 @@ $(SRCS_DIR)%.o: $(SRCS_DIR)%.c Makefile $(HEADERS)
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) -lm -o $(NAME)
 	@echo "${GREEN}-> ${NAME} executable compiled successfully${NC}"
 
 clean:

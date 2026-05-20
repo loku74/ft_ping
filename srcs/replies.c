@@ -10,11 +10,9 @@ void ping_reply(ping_data_t *ping_data) {
       exit_ping(ping_data, "gettimeofday failed");
     }
 
-    timestamp_sent =
-
-        (struct timeval *)(ping_data->reply.buffer +
-                           ping_data->reply.ip_header_size +
-                           sizeof(struct icmphdr));
+    timestamp_sent = (struct timeval *)(ping_data->reply.buffer +
+                                        ping_data->reply.ip_header_size +
+                                        sizeof(struct icmphdr));
 
     size_t diff = (timestamp_received.tv_sec - timestamp_sent->tv_sec) * 10e6 +
                   (timestamp_received.tv_usec - timestamp_sent->tv_usec);

@@ -83,22 +83,6 @@ void ping_signal_handler(int sig) {
   stop = 1;
 }
 
-static void display_stats(ping_data_t *ping_data) {
-  ping_data->stats.stddev =
-      sqrt(ping_data->stats.total_rtt_squared / ping_data->stats.received -
-           pow(ping_data->stats.total_rtt / ping_data->stats.received, 2));
-
-  printf("--- %s ft_ping statistics ---\n", ping_data->hostname);
-  printf("%u packets transmitted, %u packets received, %u%% packet loss\n",
-         ping_data->stats.sent, ping_data->stats.received,
-         (ping_data->stats.sent - ping_data->stats.received) * 100 /
-             ping_data->stats.sent);
-  printf("round-trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
-         ping_data->stats.min,
-         ping_data->stats.total_rtt / ping_data->stats.received,
-         ping_data->stats.max, ping_data->stats.stddev);
-}
-
 void ping_loop(ping_data_t *ping_data) {
   fd_set readfds;
   struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
@@ -127,5 +111,5 @@ void ping_loop(ping_data_t *ping_data) {
     }
   }
 
-  display_stats(ping_data);
+  set_stddev(ping_data);
 }

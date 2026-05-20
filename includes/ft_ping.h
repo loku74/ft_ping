@@ -1,10 +1,6 @@
 #ifndef FT_PING_H
 #define FT_PING_H
 
-extern char *NAME;
-
-// INCLUDES
-
 // libc
 #include <math.h>
 #include <signal.h>
@@ -27,10 +23,11 @@ extern char *NAME;
 #include <sys/time.h>
 #include <sys/types.h>
 
-// MACROS
-
 #define PING_PACKET_SIZE 64
 #define PING_DATA_FILL 42
+
+extern char *NAME;
+extern int8_t verbose;
 
 // STRUCT DEFINITIONS
 
@@ -79,5 +76,9 @@ void exit_ping(ping_data_t *ping_data, const char *message);
 
 /* [utils.c] */
 void to_upper(char *str);
+
+/* [stats.c] */
+void set_stddev(ping_data_t *ping_data);
+void display_stats(const ping_stats_t *ping_stats, const char *hostname);
 
 #endif

@@ -2,6 +2,7 @@
 #include <netdb.h>
 
 char *NAME;
+int8_t verbose = 0;
 
 int main(int argc, char *argv[]) {
   NAME = argv[0];
@@ -27,7 +28,9 @@ int main(int argc, char *argv[]) {
             ping_data.ip_str, sizeof(ping_data.ip_str));
 
   ping_loop(&ping_data);
-  freeaddrinfo(ping_data.res);
 
+  display_stats(&ping_data.stats, ping_data.hostname);
+
+  freeaddrinfo(ping_data.res);
   return EXIT_SUCCESS;
 }

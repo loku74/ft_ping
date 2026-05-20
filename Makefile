@@ -21,7 +21,8 @@ SRCS_FILES = ft_ping.c\
 	host.c\
 	loop.c\
 	exit.c\
-	stats.c
+	stats.c\
+	replies.c
 
 SRCS = $(addprefix $(SRCS_DIR), $(SRCS_FILES))
 OBJS = $(SRCS:.c=.o)

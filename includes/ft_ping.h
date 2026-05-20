@@ -4,6 +4,7 @@
 // libc
 #include <math.h>
 #include <signal.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +38,15 @@ typedef struct {
 } icmp_message_t;
 
 typedef struct {
+  struct iphdr *ip_header;
+  struct icmphdr *icmp_header;
+  struct sockaddr_in addr;
+  size_t ip_header_size;
+  char buffer[1024];
+  ssize_t recv_bytes;
+} ping_reply_t;
+
+typedef struct {
   uint16_t sequence;
   uint16_t received;
   uint16_t sent;
@@ -55,6 +65,7 @@ typedef struct {
   struct addrinfo *res;
   uint16_t sequence;
   ping_stats_t stats;
+  ping_reply_t reply;
 } ping_data_t;
 
 // FUNCTION PROTOTYPES
@@ -80,5 +91,10 @@ void to_upper(char *str);
 /* [stats.c] */
 void set_stddev(ping_data_t *ping_data);
 void display_stats(const ping_stats_t *ping_stats, const char *hostname);
+void set_ping_rtt_stats(ping_data_t *ping_data, double rtt);
+
+/* [replies.c] */
+void ping_reply(ping_data_t *ping_data);
+void ping_reply_ttl_expired(ping_data_t *ping_data);
 
 #endif

@@ -24,8 +24,11 @@ int main(int argc, char *argv[]) {
 
   set_icmp_message(&ping_data.icmp_message);
   ping_data.res = get_host_info(ping_data.hostname);
-  inet_ntop(AF_INET, &((struct sockaddr_in *)ping_data.res->ai_addr)->sin_addr,
-            ping_data.ip_str, sizeof(ping_data.ip_str));
+  if (!inet_ntop(AF_INET,
+                 &((struct sockaddr_in *)ping_data.res->ai_addr)->sin_addr,
+                 ping_data.ip_str, sizeof(ping_data.ip_str))) {
+    exit_ping(&ping_data, "inet_ntop failed");
+  }
 
   ping_loop(&ping_data);
 

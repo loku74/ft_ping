@@ -1,4 +1,6 @@
 #include "../includes/ft_ping.h"
+#include <netinet/ip_icmp.h>
+#include <sys/socket.h>
 
 static ssize_t send_ping(ping_data_t *ping_data) {
   struct timeval timestamp = {0};
@@ -23,57 +25,41 @@ static ssize_t send_ping(ping_data_t *ping_data) {
   return sent_bytes;
 }
 
-static void set_ping_rtt_stats(ping_data_t *ping_data, double rtt) {
-  if (ping_data->stats.min == 0 || rtt < ping_data->stats.min)
-    ping_data->stats.min = rtt;
-  if (rtt > ping_data->stats.max)
-    ping_data->stats.max = rtt;
-
-  ping_data->stats.total_rtt += rtt;
-  ping_data->stats.total_rtt_squared += rtt * rtt;
-}
-
-static void handle_ping_reply(ping_data_t *ping_data, char *buffer,
-                              ssize_t bytes) {
-  struct iphdr *ip = (struct iphdr *)buffer;
+static void handle_ping_reply(ping_data_t *ping_data, ssize_t bytes) {
+  struct iphdr *ip = (struct iphdr *)ping_data->reply.buffer;
   size_t ip_header_size = ip->ihl * 4;
-  struct icmphdr *icmp_reply = (struct icmphdr *)(buffer + ip_header_size);
+  struct icmphdr *icmp_reply =
+      (struct icmphdr *)(ping_data->reply.buffer + ip_header_size);
 
-  if (icmp_reply->type == ICMP_ECHOREPLY &&
-      icmp_reply->un.echo.id == ping_data->icmp_message.header.un.echo.id) {
+  ping_data->reply.ip_header = ip;
+  ping_data->reply.icmp_header = icmp_reply;
+  ping_data->reply.ip_header_size = ip_header_size;
+  ping_data->reply.recv_bytes = bytes;
 
-    ping_data->stats.received++;
-
-    struct timeval *timestamp_sent, timestamp_received;
-    gettimeofday(&timestamp_received, NULL);
-
-    timestamp_sent =
-        (struct timeval *)(buffer + ip_header_size + sizeof(struct icmphdr));
-    size_t diff = (timestamp_received.tv_sec - timestamp_sent->tv_sec) * 10e6 +
-                  (timestamp_received.tv_usec - timestamp_sent->tv_usec);
-
-    double rtt_time = diff / 1000.;
-    set_ping_rtt_stats(ping_data, rtt_time);
-
-    printf("%zd bytes from %s: icmp_seq=%u ttl=%u time=%.3f ms\n",
-           bytes - ip_header_size, ping_data->ip_str,
-           ntohs(icmp_reply->un.echo.sequence), ip->ttl, rtt_time);
+  switch (icmp_reply->type) {
+  case ICMP_ECHOREPLY:
+    ping_reply(ping_data);
+    break;
+  case ICMP_TIMXCEED:
+    ping_reply_ttl_expired(ping_data);
+    break;
+  default:
+    break;
   }
 }
 
 static void receive_ping(ping_data_t *ping_data) {
-  char recv_buffer[1024];
-  struct sockaddr_in recv_addr;
-  socklen_t recv_addr_len = sizeof(recv_addr);
+  socklen_t recv_addr_len = sizeof(ping_data->reply.addr);
 
   ssize_t recv_bytes =
-      recvfrom(ping_data->sockfd, recv_buffer, sizeof(recv_buffer), 0,
-               (struct sockaddr *)&recv_addr, &recv_addr_len);
+      recvfrom(ping_data->sockfd, ping_data->reply.buffer,
+               sizeof(ping_data->reply.buffer), 0,
+               (struct sockaddr *)&ping_data->reply.addr, &recv_addr_len);
 
   if (recv_bytes < 0)
     exit_ping(ping_data, "recvfrom");
 
-  handle_ping_reply(ping_data, recv_buffer, recv_bytes);
+  handle_ping_reply(ping_data, recv_bytes);
 }
 
 volatile int stop = 0;

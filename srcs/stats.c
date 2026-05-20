@@ -1,5 +1,15 @@
 #include "../includes/ft_ping.h"
 
+void set_ping_rtt_stats(ping_data_t *ping_data, double rtt) {
+  if (ping_data->stats.min == 0 || rtt < ping_data->stats.min)
+    ping_data->stats.min = rtt;
+  if (rtt > ping_data->stats.max)
+    ping_data->stats.max = rtt;
+
+  ping_data->stats.total_rtt += rtt;
+  ping_data->stats.total_rtt_squared += rtt * rtt;
+}
+
 void set_stddev(ping_data_t *ping_data) {
   ping_data->stats.stddev =
       sqrt(ping_data->stats.total_rtt_squared / ping_data->stats.received -

@@ -42,6 +42,8 @@ static void handle_ping_reply(ping_data_t *ping_data, char *buffer,
   if (icmp_reply->type == ICMP_ECHOREPLY &&
       icmp_reply->un.echo.id == ping_data->icmp_message.header.un.echo.id) {
 
+    ping_data->stats.received++;
+
     struct timeval *timestamp_sent, timestamp_received;
     gettimeofday(&timestamp_received, NULL);
 
@@ -70,8 +72,6 @@ static void receive_ping(ping_data_t *ping_data) {
 
   if (recv_bytes < 0)
     exit_ping(ping_data, "recvfrom");
-
-  ping_data->stats.received++;
 
   handle_ping_reply(ping_data, recv_buffer, recv_bytes);
 }

@@ -23,7 +23,7 @@ static ssize_t send_ping(ping_data_t *ping_data) {
   return sent_bytes;
 }
 
-static void set_ping_stats(ping_data_t *ping_data, double rtt) {
+static void set_ping_rtt_stats(ping_data_t *ping_data, double rtt) {
   if (ping_data->stats.min == 0 || rtt < ping_data->stats.min)
     ping_data->stats.min = rtt;
   if (rtt > ping_data->stats.max)
@@ -51,7 +51,7 @@ static void handle_ping_reply(ping_data_t *ping_data, char *buffer,
                   (timestamp_received.tv_usec - timestamp_sent->tv_usec);
 
     double rtt_time = diff / 1000.;
-    set_ping_stats(ping_data, rtt_time);
+    set_ping_rtt_stats(ping_data, rtt_time);
 
     printf("%zd bytes from %s: icmp_seq=%u ttl=%u time=%.3f ms\n",
            bytes - ip_header_size, ping_data->ip_str,

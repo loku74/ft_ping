@@ -41,7 +41,7 @@ typedef struct {
   struct iphdr *ip_header;
   struct icmphdr *icmp_header;
   struct sockaddr_in addr;
-  size_t ip_header_size;
+  uint32_t ip_header_size;
   char buffer[1024];
   ssize_t recv_bytes;
 } ping_reply_t;

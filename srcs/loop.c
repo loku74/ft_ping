@@ -81,7 +81,8 @@ void ping_loop(ping_data_t *ping_data) {
          ping_data->ip_str, sizeof(ping_data->icmp_message.payload));
   if (verbose) {
     uint16_t id = ntohs(ping_data->icmp_message.header.un.echo.id);
-    printf(", id 0x%x = %u", id, id);
+    printf(", id 0x%x = %u", id,
+           ntohs(ping_data->icmp_message.header.un.echo.id));
   }
   printf("\n");
   send_ping(ping_data);

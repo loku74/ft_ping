@@ -15,6 +15,12 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  int pmtu = IP_PMTUDISC_DO;
+  if (setsockopt(ping_data.sockfd, IPPROTO_IP, IP_MTU_DISCOVER, &pmtu, sizeof(pmtu)) < 0) {
+      perror("setsockopt IP_MTU_DISCOVER");
+      // Not fatal, you can continue, but it won't set the flag.
+  }
+
   set_icmp_message(&ping_data.icmp_message);
   ping_data.res = get_host_info(ping_data.hostname);
   if (!inet_ntop(AF_INET,

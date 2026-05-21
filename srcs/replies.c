@@ -6,7 +6,7 @@ void ping_reply(ping_data_t *ping_data) {
     ping_data->stats.received++;
 
     struct timeval *timestamp_sent, timestamp_received;
-    if (!gettimeofday(&timestamp_received, NULL)) {
+    if (gettimeofday(&timestamp_received, NULL) != 0) {
       exit_ping(ping_data, "gettimeofday failed");
     }
 

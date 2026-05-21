@@ -1,20 +1,13 @@
 #include "../includes/ft_ping.h"
-#include <netdb.h>
 
 char *NAME;
-int8_t verbose = 0;
 
 int main(int argc, char *argv[]) {
   NAME = argv[0];
-
-  if (argc < 2) {
-    fprintf(stderr, "%s: missing host operand\n", NAME);
-    return 1;
-  }
+  parse_args(argc, argv);
 
   ping_data_t ping_data = {0};
-
-  ping_data.hostname = argv[1];
+  ping_data.hostname = argv[optind];
 
   ping_data.sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
   if (ping_data.sockfd < 0) {

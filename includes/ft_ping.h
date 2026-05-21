@@ -97,4 +97,7 @@ void set_ping_rtt_stats(ping_data_t *ping_data, double rtt);
 void ping_reply(ping_data_t *ping_data);
 void ping_reply_ttl_expired(ping_data_t *ping_data);
 
+/* [args.c] */
+void parse_args(int argc, char *argv[]);
+
 #endif

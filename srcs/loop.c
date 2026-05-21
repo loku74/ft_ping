@@ -1,5 +1,7 @@
 #include "../includes/ft_ping.h"
+#include <netinet/in.h>
 #include <netinet/ip_icmp.h>
+#include <stdint.h>
 #include <sys/socket.h>
 
 static ssize_t send_ping(ping_data_t *ping_data) {
@@ -75,9 +77,13 @@ void ping_loop(ping_data_t *ping_data) {
 
   signal(SIGINT, ping_signal_handler);
 
-  printf("FT_PING %s (%s): %zd data bytes\n", ping_data->hostname,
+  printf("FT_PING %s (%s): %zd data bytes", ping_data->hostname,
          ping_data->ip_str, sizeof(ping_data->icmp_message.payload));
-
+  if (verbose) {
+    uint16_t id = ntohs(ping_data->icmp_message.header.un.echo.id);
+    printf(", id 0x%x = %u", id, id);
+  }
+  printf("\n");
   send_ping(ping_data);
 
   while (!stop) {

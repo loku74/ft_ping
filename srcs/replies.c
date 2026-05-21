@@ -1,5 +1,58 @@
 #include "../includes/ft_ping.h"
 #include <netinet/in.h>
+#include <netinet/ip_icmp.h>
+#include <stdio.h>
+
+static void print_ip_header(ping_data_t *ping_data) {
+  printf("IP Hdr Dump:\n ");
+
+  uint16_t *ip_words = (uint16_t *)ping_data->reply.ip_header;
+
+  int num_words = ping_data->reply.ip_header_size / sizeof(uint16_t);
+
+  for (int i = 0; i < num_words; i++) {
+    printf("%04x", ntohs(ip_words[i]));
+
+    if (i < num_words - 1) {
+      printf(" ");
+    }
+  }
+  printf("\n");
+
+  struct iphdr *ip = (struct iphdr *)(ping_data->reply.buffer +
+                                      ping_data->reply.ip_header_size +
+                                      sizeof(struct icmphdr));
+
+  printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");
+  printf(" %1x  %1x  %02x",
+         ip->version, // version
+         ip->ihl,     // ip header length
+         ip->tos      // type of service
+  );
+
+  printf(" %04x %04x",
+         (ip->tot_len > 0x2000) ? ntohs(ip->tot_len)
+                                : ip->tot_len, // total ip header length
+         ntohs(ip->id));                       // id)
+  printf("   %1x %04x",
+         (ntohs(ip->frag_off) & 0xe000) >> 13, // flag (top 3 bits)
+         ntohs(ip->frag_off) & 0x1FFF);        // offset (bottom 13 bits))
+  printf("  %02x  %02x %04x", ip->ttl,         // ttl
+         ip->protocol,                         // protocol
+         ntohs(ip->check));                    // checksum (cks))
+  printf(" %s ", inet_ntoa(*(struct in_addr *)&ip->saddr)); // source ip
+  printf(" %s ", inet_ntoa(*(struct in_addr *)&ip->daddr)); // destination ip
+  printf("\n");
+}
+
+static void print_icmp_header(ping_data_t *ping_data) {
+  printf("ICMP: type %d, code %u, size %zd, id 0x%04x, sequence 0x%04x\n",
+         ping_data->icmp_message.header.type,
+         ping_data->icmp_message.header.code,
+         sizeof(ping_data->icmp_message),
+         ntohs(ping_data->icmp_message.header.un.echo.id),
+         ntohs(ping_data->icmp_message.header.un.echo.sequence));
+}
 
 void ping_reply(ping_data_t *ping_data) {
   if (ping_data->reply.icmp_header->un.echo.id ==
@@ -51,38 +104,7 @@ void ping_reply_ttl_expired(ping_data_t *ping_data) {
   }
 
   if (verbose) {
-    printf("IP Hdr Dump:\n ");
-
-    uint16_t *ip_words = (uint16_t *)ping_data->reply.ip_header;
-
-    int num_words = ping_data->reply.ip_header_size / sizeof(uint16_t);
-
-    for (int i = 0; i < num_words; i++) {
-      printf("%04x", ntohs(ip_words[i]));
-
-      if (i < num_words - 1) {
-        printf(" ");
-      }
-    }
-    printf("\n");
-
-    struct iphdr *ip = ping_data->reply.ip_header;
-
-    printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");
-    printf(" %1x  %1x  %02x %04x %04x   %1x %04x  %02x  %02x %04x %s  %s\n",
-           ip->version, // version
-           ip->ihl,     // ip header length
-           ip->tos,     // type of service
-           (ip->tot_len > 0x2000) ? ntohs(ip->tot_len)
-                                  : ip->tot_len, // total ip header length
-           ntohs(ip->id),                        // id
-           (ntohs(ip->frag_off) & 0xe000) >> 13, // flag (top 3 bits)
-           ntohs(ip->frag_off) &
-               0x1FFF,       // offset (bottom 13 bits)
-           ip->ttl,          // ttl
-           ip->protocol,     // protocol
-           ntohs(ip->check), // checksum (cks)
-           inet_ntoa(*(struct in_addr *)&ip->saddr),  // source ip
-           inet_ntoa(*(struct in_addr *)&ip->daddr)); // destination IP)
+    print_ip_header(ping_data);
+    print_icmp_header(ping_data);
   }
 }

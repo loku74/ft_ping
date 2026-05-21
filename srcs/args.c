@@ -13,7 +13,6 @@ static void help_message() {
   printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
   printf("Options valid for all request types:\n");
   printf("  -%c, --%s    Verbose output\n", VERBOSE_FLAG, VERBOSE_LONG);
-  exit(0);
 }
 
 static void error_message() {
@@ -37,7 +36,7 @@ void parse_args(int argc, char *argv[]) {
       verbose = 1;
       break;
     case '?':
-      if (optopt != '?') {
+      if (optopt != 0 && optopt != '?') {
         error_message();
         exit(1);
       }

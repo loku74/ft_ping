@@ -1,14 +1,15 @@
 #include "../includes/ft_ping.h"
 #include <netinet/in.h>
+#include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 #include <stdio.h>
 
-static void print_ip_header(ping_data_t *ping_data) {
+static struct iphdr *print_ip_header(struct iphdr *ip, size_t size) {
   printf("IP Hdr Dump:\n ");
 
-  uint16_t *ip_words = (uint16_t *)ping_data->reply.ip_header;
+  uint16_t *ip_words = (uint16_t *)ip;
 
-  int num_words = ping_data->reply.ip_header_size / sizeof(uint16_t);
+  int num_words = size / sizeof(uint16_t);
 
   for (int i = 0; i < num_words; i++) {
     printf("%04x", ntohs(ip_words[i]));
@@ -18,10 +19,6 @@ static void print_ip_header(ping_data_t *ping_data) {
     }
   }
   printf("\n");
-
-  struct iphdr *ip = (struct iphdr *)(ping_data->reply.buffer +
-                                      ping_data->reply.ip_header_size +
-                                      sizeof(struct icmphdr));
 
   printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");
   printf(" %1x  %1x  %02x",
@@ -43,15 +40,14 @@ static void print_ip_header(ping_data_t *ping_data) {
   printf(" %s ", inet_ntoa(*(struct in_addr *)&ip->saddr)); // source ip
   printf(" %s ", inet_ntoa(*(struct in_addr *)&ip->daddr)); // destination ip
   printf("\n");
+
+  return ip;
 }
 
-static void print_icmp_header(ping_data_t *ping_data) {
+static void print_icmp_header(struct icmphdr *icmp, size_t size) {
   printf("ICMP: type %d, code %u, size %zd, id 0x%04x, sequence 0x%04x\n",
-         ping_data->icmp_message.header.type,
-         ping_data->icmp_message.header.code,
-         sizeof(ping_data->icmp_message),
-         ntohs(ping_data->icmp_message.header.un.echo.id),
-         ntohs(ping_data->icmp_message.header.un.echo.sequence));
+         icmp->type, icmp->code, size, ntohs(icmp->un.echo.id),
+         ntohs(icmp->un.echo.sequence));
 }
 
 void ping_reply(ping_data_t *ping_data) {
@@ -104,7 +100,16 @@ void ping_reply_ttl_expired(ping_data_t *ping_data) {
   }
 
   if (verbose) {
-    print_ip_header(ping_data);
-    print_icmp_header(ping_data);
+    struct iphdr *ip = (struct iphdr *)(ping_data->reply.buffer +
+                                        ping_data->reply.ip_header_size +
+                                        sizeof(struct icmphdr));
+
+    size_t ip_header_size = ip->ihl * 4;
+    size_t icmp_header_size = ntohs(ip->tot_len) - ip_header_size;
+
+    struct icmphdr *icmp = (struct icmphdr *)((char *)ip + ip_header_size);
+
+    print_ip_header(ip, ip_header_size);
+    print_icmp_header(icmp, icmp_header_size);
   }
 }

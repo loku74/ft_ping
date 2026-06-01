@@ -14,6 +14,7 @@ HEADERS = $(addprefix $(HEADERS_DIR), $(HEADERS_FILES))
 
 # --- SRCS files and objs ---
 SRCS_DIR = ./srcs/
+OBJS_DIR = ./objs/
 
 SRCS_FILES = ft_ping.c\
 	checksum.c\
@@ -26,7 +27,7 @@ SRCS_FILES = ft_ping.c\
 	args.c
 
 SRCS = $(addprefix $(SRCS_DIR), $(SRCS_FILES))
-OBJS = $(SRCS:.c=.o)
+OBJS = $(addprefix $(OBJS_DIR), $(SRCS_FILES:.c=.o))
 
 # Compiler and flags
 CC = cc
@@ -34,7 +35,8 @@ CFLAGS = -Wall -Wextra -Werror
 RM = rm
 RM_FLAGS = -rf
 
-$(SRCS_DIR)%.o: $(SRCS_DIR)%.c Makefile $(HEADERS)
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.c Makefile $(HEADERS)
+	@mkdir -p $(OBJS_DIR)
 	@$(CC) $(CFLAGS) -I$(HEADERS_DIR) -c $< -o $@
 
 all: $(NAME)
@@ -44,11 +46,11 @@ $(NAME): $(OBJS)
 	@echo "${GREEN}-> ${NAME} executable compiled successfully${NC}"
 
 clean:
-	@$(RM) $(RM_FLAGS) $(OBJS)
+	@$(RM) $(RM_FLAGS) $(OBJS_DIR)
 	@echo "${PURPLE}-> All ${NAME} objs files removed successfully${NC}"
 
 fclean:
-	@$(RM) $(RM_FLAGS) $(NAME) $(OBJS)
+	@$(RM) $(RM_FLAGS) $(NAME) $(OBJS_DIR)
 	@echo "${PURPLE}-> ${NAME} executable and objs removed successfully${NC}"
 
 re: fclean all

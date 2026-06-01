@@ -9,7 +9,7 @@ int8_t verbose = 0;
 #define HELP_LONG "help"
 
 static void help_message() {
-  printf("Usage: %s [OPTION...] DESTINATION\n", NAME);
+  printf("Usage: %s [OPTION...] HOST ...\n", NAME);
   printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
   printf("Options valid for all request types:\n");
   printf("  -%c, --%s    Verbose output\n", VERBOSE_FLAG, VERBOSE_LONG);

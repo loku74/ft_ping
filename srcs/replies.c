@@ -33,10 +33,10 @@ static struct iphdr *print_ip_header(struct iphdr *ip, size_t size) {
          ntohs(ip->id));                       // id)
   printf("   %1x %04x",
          (ntohs(ip->frag_off) & 0xe000) >> 13, // flag (top 3 bits)
-         ntohs(ip->frag_off) & 0x1FFF);        // offset (bottom 13 bits))
+         ntohs(ip->frag_off) & 0x1FFF);        // offset (bottom 13 bits)
   printf("  %02x  %02x %04x", ip->ttl,         // ttl
          ip->protocol,                         // protocol
-         ntohs(ip->check));                    // checksum (cks))
+         ntohs(ip->check));                    // checksum (cks)
   printf(" %s ", inet_ntoa(*(struct in_addr *)&ip->saddr)); // source ip
   printf(" %s ", inet_ntoa(*(struct in_addr *)&ip->daddr)); // destination ip
   printf("\n");
